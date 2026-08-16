@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Materiale Admin – Matematici Speciale</title>
+  <link rel="stylesheet" href="./css/style.css" />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body class="admin-mode">
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/admin-ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1" style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div class="hero-tag">Gestiune Resurse</div>
+        <div class="section-title">Management Materiale</div>
+        <div class="section-sub">Actualizează biblioteca de curs, seminar și tutoriat.</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('add-modal')">+ Material Nou</button>
+    </div>
+    
+    <div class="tabs fade2" style="margin-bottom:24px">
+      <button class="tab on" data-tabgroup="adm-mat" data-tab="curs" onclick="switchTab('adm-mat','curs'); loadCat('curs')">Curs</button>
+      <button class="tab" data-tabgroup="adm-mat" data-tab="seminar" onclick="switchTab('adm-mat','seminar'); loadCat('seminar')">Seminar</button>
+      <button class="tab" data-tabgroup="adm-mat" data-tab="tutoriat" onclick="switchTab('adm-mat','tutoriat'); loadCat('tutoriat')">Tutoriat</button>
+    </div>
+
+    <div id="mat-list" class="fade2" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(350px, 1fr));gap:16px"></div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-title">Adaugă Resursă</span><button class="modal-close" onclick="closeModal('add-modal')">✕</button></div>
+    <div class="form-group"><label class="form-label">Titlu</label><input id="m-t" class="form-input" type="text" placeholder="ex. Curs 5 – Integrale" /></div>
+    <div class="form-group"><label class="form-label">Link</label><input id="m-l" class="form-input" type="url" placeholder="https://drive.google.com/..." /></div>
+    <div class="g2" style="gap:16px">
+      <div class="form-group"><label class="form-label">Categorie</label>
+        <select id="m-c" class="form-select"><option value="curs">Curs</option><option value="seminar">Seminar</option><option value="tutoriat">Tutoriat</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Tip</label>
+        <select id="m-tp" class="form-select"><option value="PDF">PDF</option><option value="Video">Video</option><option value="Link">Link</option></select>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="add()">Finalizează Încărcare</button>
+  </div>
+</div>
+
+<script>
+initPage('Management Materiale', 'materiale.html');
+const ICONS = { PDF:'📄', Video:'🎬', Link:'🔗' };
+
+function switchTab(group, name) {
+  document.querySelectorAll(`[data-tabgroup="${group}"].tab`).forEach(el => el.classList.toggle('on', el.dataset.tab === name));
+}
+
+async function loadCat(cat) {
+  const el = document.getElementById('mat-list');
+  el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-mute)">Sincronizare...</div>';
+  try {
+    const data = await API.getMaterials(cat);
+    if (!data.length) { el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;opacity:0.3">Niciun material în această categorie.</div>'; return; }
+    el.innerHTML = data.map(m => `
+      <div class="card mat-item" style="display:flex;gap:16px;align-items:center;padding:16px">
+        <div class="mat-icon" style="width:44px;height:44px;background:var(--bg-glass-lt);border:1px solid var(--border);border-radius:10px">${ICONS[m.type]||'📄'}</div>
+        <div style="flex:1">
+          <div class="mat-title" style="font-size:14px;font-weight:700;font-family:var(--font-hd)">${m.title}</div>
+          <div class="mat-meta" style="font-size:11px;color:var(--text-mute)">${m.category.toUpperCase()} · ${m.type} · ${new Date(m.created_at).toLocaleDateString()}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="${m.link}" target="_blank" class="btn btn-secondary btn-sm" style="padding:6px 12px">Link</a>
+          <button class="btn btn-danger btn-sm" style="padding:6px 10px" onclick="del(${m.id})">×</button>
+        </div>
+      </div>`).join('');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+async function add() {
+  try {
+    const c = document.getElementById('m-c').value;
+    await API.addMaterial({ title:document.getElementById('m-t').value, link:document.getElementById('m-l').value, category:c, type:document.getElementById('m-tp').value });
+    closeModal('add-modal'); toast('Material adăugat.','ok'); loadCat(c);
+  } catch(e) { toast(e.message,'err'); }
+}
+async function del(id) {
+  if(!confirm('Ștergi materialul?')) return;
+  const c = document.querySelector('[data-tabgroup="adm-mat"].on').dataset.tab;
+  try { await API.deleteMaterial(id); toast('Șters.','ok'); loadCat(c); } catch(e){toast(e.message,'err');}
+}
+
+loadCat('curs');
+</script>
+</body></html>

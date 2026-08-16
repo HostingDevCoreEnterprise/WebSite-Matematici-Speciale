@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+
+  <title>Platformă Mock-Exam | Matematici Speciale</title>
+  <meta name="description" content="Testează-ți cunoștințele cu platforma noastră de Mock-Exam." />
+  <link rel="canonical" href="https://matematicispeciale.site/mock-exam.html" />
+  <meta property="og:title" content="Platformă Mock-Exam | Matematici Speciale" />
+  <meta property="og:description" content="Testează-ți cunoștințele cu platforma noastră de Mock-Exam." />
+  <meta property="og:url" content="https://matematicispeciale.site/mock-exam.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Platformă Mock-Exam | Matematici Speciale" />
+  <meta name="twitter:description" content="Testează-ți cunoștințele cu platforma noastră de Mock-Exam." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    
+    <!-- PHASE 0: AUTH & TRIES CHECK -->
+    <div id="p-zero" class="fade1" style="display:none">
+      <div class="auth-wall">
+        <div class="auth-wall-icon">🎯</div>
+        <div class="auth-wall-title">Simulare Mock-Exam</div>
+        <div id="tries-info" class="auth-wall-sub">Verificăm permisiunile de acces...</div>
+        <div id="start-btn-wrap" style="margin-top:20px;display:none">
+          <button class="btn btn-primary btn-lg" onclick="startExam()">Începe Simularea</button>
+        </div>
+        <div id="p-zero-auth" style="display:none;margin-top:20px">
+          <button class="btn btn-primary" onclick="openModal('auth-modal')">Autentificare Necesară</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 1: EXAM ACTIVE -->
+    <div id="p-active" style="display:none">
+      <div class="section-hd fade1" style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div>
+          <div class="hero-tag">Sesiune în Desfășurare</div>
+          <div class="section-title">Simulare Examen</div>
+        </div>
+        <div id="timer" class="timer">120:00</div>
+      </div>
+
+      <div class="g2 fade2" style="gap:24px; align-items:start">
+        <div class="card" id="q-theory">
+          <div class="tag tag-indigo" style="margin-bottom:12px">Subiectul I — Teorie (30p)</div>
+          <div id="theory-title" style="font-size:18px;font-weight:800;font-family:var(--font-hd);margin-bottom:14px">Se încarcă...</div>
+          <div id="theory-link" style="margin-top:10px"></div>
+        </div>
+        <div class="card" id="q-ex">
+          <div class="tag tag-gold" style="margin-bottom:12px">Subiectul II — Exerciții (50p)</div>
+          <div id="ex-title" style="font-size:18px;font-weight:800;font-family:var(--font-hd);margin-bottom:14px">Se încarcă...</div>
+          <div id="ex-link" style="margin-top:10px"></div>
+        </div>
+        <div class="card" style="grid-column: 1 / -1; background:rgba(255,255,255,0.02)">
+          <div class="card-title" style="margin-bottom:20px">Instrucțiuni Finalizare</div>
+          <p style="font-size:14px;color:var(--text-dim);margin-bottom:24px;line-height:1.7">Rezolvă subiectele pe foaie, scanează-le într-un singur PDF și încarcă-l pe un serviciu de cloud (Google Drive / OneDrive). Introdu link-ul public mai jos.</p>
+          <div class="form-group">
+            <label class="form-label">Link Soluție (Public)</label>
+            <input id="sol-link" type="url" class="form-input" placeholder="https://drive.google.com/..." />
+          </div>
+          <button class="btn btn-primary btn-lg" style="width:100%" onclick="submitExam()">Finalizează și Trimite spre Corectare</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2: SUBMITTED -->
+    <div id="p-done" class="fade1" style="display:none; text-align:center; padding:80px 20px">
+      <div style="font-size:64px;margin-bottom:24px">🚀</div>
+      <div class="section-title" style="font-size:32px">Simulare Finalizată!</div>
+      <p style="color:var(--text-dim);max-width:500px;margin:20px auto 32px;line-height:1.8">Lucrarea ta a fost trimisă cu succes. Un asistent o va corecta în cel mai scurt timp. Poți vedea progresul în dashboard-ul tău.</p>
+      <a href="conturi.html" class="btn btn-primary btn-lg">Mergi la Dashboard</a>
+    </div>
+
+  </div>
+  <footer id="footer"></footer>
+</div>
+
+<script>
+initPage({ title: 'Mock-Exam', sub: 'Simulator de Examen', active: 'mock-exam.html' });
+
+let tries = 0;
+let time = 120 * 60;
+let timerInt = null;
+let currentTheory = null;
+let currentEx = null;
+
+async function check() {
+  const pZero = document.getElementById('p-zero');
+  pZero.style.display = 'block';
+  if (!API.isLoggedIn()) {
+    document.getElementById('tries-info').textContent = 'Trebuie să fii autentificat pentru a accesa simulările.';
+    document.getElementById('p-zero-auth').style.display = 'block';
+    return;
+  }
+  try {
+    const user = await API.me();
+    tries = user.tries;
+    if (tries <= 0) {
+      document.getElementById('tries-info').innerHTML = `Ai consumat toate cele 3 încercări disponibile.<br><span style="color:var(--rose);font-weight:700">Acces restricționat.</span>`;
+    } else {
+      document.getElementById('tries-info').innerHTML = `Ești gata? Mai ai <span style="color:var(--accent);font-weight:900;font-size:20px">${tries}</span> încercări disponibile.<br>Odată începută, sesiunea durează 120 de minute.`;
+      document.getElementById('start-btn-wrap').style.display = 'block';
+    }
+  } catch(e) { toast(e.message, 'err'); }
+}
+
+async function startExam() {
+  try {
+    const theories = await API.getTheorySubjects();
+    const exs = await API.getExerciseSubjects();
+    if (!theories.length || !exs.length) throw new Error('Baza de date cu subiecte este momentan goală.');
+
+    currentTheory = theories[Math.floor(Math.random() * theories.length)];
+    currentEx = exs[Math.floor(Math.random() * exs.length)];
+
+    document.getElementById('theory-title').textContent = currentTheory.title;
+    if (currentTheory.link !== '#') document.getElementById('theory-link').innerHTML = `<a href="${currentTheory.link}" target="_blank" class="btn btn-secondary btn-sm">Resursă Suport Subiect ↗</a>`;
+    
+    document.getElementById('ex-title').textContent = currentEx.title;
+    if (currentEx.link !== '#') document.getElementById('ex-link').innerHTML = `<a href="${currentEx.link}" target="_blank" class="btn btn-secondary btn-sm">Resursă Suport Exercițiu ↗</a>`;
+
+    document.getElementById('p-zero').style.display = 'none';
+    document.getElementById('p-active').style.display = 'block';
+    startTimer();
+  } catch(e) { toast(e.message,'err'); }
+}
+
+function startTimer() {
+  const el = document.getElementById('timer');
+  timerInt = setInterval(() => {
+    time--;
+    const m = Math.floor(time/60);
+    const s = time%60;
+    el.textContent = `${m}:${s<10?'0':''}${s}`;
+    if (time <= 600) el.classList.add('urgent');
+    if (time <= 0) { clearInterval(timerInt); submitExam(); }
+  }, 1000);
+}
+
+async function submitExam() {
+  const link = document.getElementById('sol-link').value.trim();
+  if (!link && time > 0) { toast('Introdu link-ul soluției înainte de a finaliza.','err'); return; }
+  
+  clearInterval(timerInt);
+  try {
+    await API.submitMock({
+      theory_subject: currentTheory.id,
+      exercise_subject: currentEx.id,
+      upload_url: link || 'TIMEOUT'
+    });
+    document.getElementById('p-active').style.display = 'none';
+    document.getElementById('p-done').style.display = 'block';
+    toast('Simulare trimisă cu succes!','ok');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+check();
+</script>
+</body></html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+
+  <title>Întrebări Frecvente (FAQ) | Matematici Speciale</title>
+  <meta name="description" content="Răspunsuri la cele mai frecvente întrebări despre curs." />
+  <link rel="canonical" href="https://matematicispeciale.site/faq.html" />
+  <meta property="og:title" content="Întrebări Frecvente (FAQ) | Matematici Speciale" />
+  <meta property="og:description" content="Răspunsuri la cele mai frecvente întrebări despre curs." />
+  <meta property="og:url" content="https://matematicispeciale.site/faq.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Întrebări Frecvente (FAQ) | Matematici Speciale" />
+  <meta name="twitter:description" content="Răspunsuri la cele mai frecvente întrebări despre curs." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1">
+      <div class="hero-tag">Suport & Clarificări</div>
+      <div class="section-title">Întrebări Frecvente</div>
+      <div class="section-sub">Răspunsuri la cele mai comune curiozități legate de curs și examene.</div>
+    </div>
+    <div id="faq-list" class="fade2" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+<script>
+initPage({ title: 'Întrebări Frecvente', sub: 'Hub de Suport', active: 'faq.html' });
+
+const FAQ = [
+  { q: '📅 Când începe tutoriatul?', a: 'Tutoriatul începe pe 17 martie 2026, la ora 18:00, în sala 107. Vă așteptăm cu drag!' },
+  { q: '💻 Unde pot găsi materialele pentru tutoriat?', a: 'Materialele sunt disponibile pe pagina <a href="materiale.html">Materiale</a> a site-ului nostru.' },
+  { q: '📅 Cum pot afla detalii despre orar?', a: 'Detaliile despre orar vor fi disponibile pe <a href="https://fmi.unibuc.ro/orar/" target="_blank">siteul facultații</a>, sub secțiunea "Orar tutoriate".' },
+  { q: '❓ Ce platforme sunt folosite pentru tutoriate?', a: 'Pentru tutoriate, vom folosi WhatsApp și Microsoft Teams. Detalii sunt furnizate pe <a href="https://fmi.unibuc.ro/orar/" target="_blank">siteul facultații</a>, sub secțiunea "Detalii tutori".' },
+  { q: '📚 Ce tipuri de materiale sunt disponibile?', a: 'Puteți găsi fișe recapitulative, exerciții suplimentare și exemple de teste pe pagina Materiale. Acestea vor fi încărcate pe parcurs.' }
+];
+
+document.getElementById('faq-list').innerHTML = FAQ.map((it, i) => `
+  <div class="acc-item card" style="padding:0">
+    <button class="acc-btn" onclick="toggleAcc(this)" style="padding:22px 28px">
+      <span style="font-family:var(--font-hd);font-weight:700;font-size:15px">${it.q}</span>
+      <span class="acc-icon" style="transition:0.3s;opacity:0.6">▼</span>
+    </button>
+    <div class="acc-body">
+      <div class="acc-inner" style="padding:24px 28px; line-height:1.7; background:rgba(0,0,0,0.1); border-top:1px solid var(--border)">${it.a}</div>
+    </div>
+  </div>`).join('');
+</script>
+</body>
+</html>

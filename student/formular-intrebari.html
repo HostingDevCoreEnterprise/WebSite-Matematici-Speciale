@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* Hides the sidebar for this specific page so the form is full width */
+    #sidebar { display: none !important; }
+    .main { margin-left: 0 !important; }
+    .page { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }
+    
+    .form-container {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      height: 80vh; /* Make it very tall so scrolling is easy */
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+  </style>
+
+  <title>Formular Întrebări | Matematici Speciale</title>
+  <meta name="description" content="Trimite întrebări către cadrele didactice pentru sesiunile interactive." />
+  <link rel="canonical" href="https://matematicispeciale.site/formular-intrebari.html" />
+  <meta property="og:title" content="Formular Întrebări | Matematici Speciale" />
+  <meta property="og:description" content="Trimite întrebări către cadrele didactice pentru sesiunile interactive." />
+  <meta property="og:url" content="https://matematicispeciale.site/formular-intrebari.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Formular Întrebări | Matematici Speciale" />
+  <meta name="twitter:description" content="Trimite întrebări către cadrele didactice pentru sesiunile interactive." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1" style="text-align: center; margin-bottom: 24px;">
+      <div class="hero-tag" style="justify-content: center;">Sesiunea de Recapitulare</div>
+      <div class="section-title">Formular de Întrebări</div>
+      <div class="section-sub">Trimite-ne întrebările și nelămuririle tale pentru a le discuta la sesiunea finală de tutoriat.</div>
+    </div>
+    
+    <div class="fade2" style="display: flex; justify-content: center;">
+      <div class="form-container">
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfqRY2nY9fJY8Xp0EsNfWJleBIfg1UkSvoPRmXibzYRwpNW5w/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">Se încarcă...</iframe>
+      </div>
+    </div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+<script>
+initPage({ title: 'Formular Întrebări', sub: 'Recapitulare', active: 'formular-intrebari.html' });
+</script>
+</body>
+</html>

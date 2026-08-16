@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+  <title>Calendar Academic | Matematici Speciale</title>
+  <meta name="description" content="Calendarul oficial al activităților, cursurilor, seminarelor și examenelor." />
+  <link rel="canonical" href="https://matematicispeciale.site/calendar.html" />
+  <meta property="og:title" content="Calendar Academic | Matematici Speciale" />
+  <meta property="og:description" content="Calendarul oficial al activităților, cursurilor, seminarelor și examenelor." />
+  <meta property="og:url" content="https://matematicispeciale.site/calendar.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Calendar Academic | Matematici Speciale" />
+  <meta name="twitter:description" content="Calendarul oficial al activităților, cursurilor, seminarelor și examenelor." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<style>
+  :root { --fc-border-color: var(--border); --fc-today-bg-color: rgba(99,102,241,0.06); }
+  .fc { background: var(--bg-surface); border-radius: var(--r-xl); border: 1px solid var(--border-lt); padding: 25px; box-shadow: var(--shadow-lg); font-family: var(--font-body); }
+  .fc-header-toolbar { margin-bottom: 24px !important; }
+  .fc-toolbar-title { font-family: var(--font-hd); font-weight: 800 !important; font-size: 20px !important; }
+  .fc-col-header-cell { padding: 12px 0 !important; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+  .fc-button-primary { background: var(--bg-glass-lt) !important; border: 1px solid var(--border) !important; color: var(--text-main) !important; font-weight: 600 !important; font-size: 13px !important; border-radius: 8px !important; padding: 6px 14px !important; }
+  .fc-button-primary:hover { background: var(--accent) !important; color: #fff !important; }
+  
+  .event-seminar { background: #2ecc71 !important; border-color: #27ae60 !important; color: white !important; }
+  .event-curs { background: #3498db !important; border-color: #2980b9 !important; color: white !important; }
+  .event-tutoriat { background: #9b59b6 !important; border-color: #8e44ad !important; color: white !important; }
+  .event-examen { background: #e74c3c !important; border-color: #c0392b !important; color: white !important; }
+  
+  .fc-event { border-radius: 4px; border: none; padding: 2px 4px; margin-bottom: 2px; }
+  .fc-event-title { font-weight: 700; font-size: 12px; }
+  .fc-event-time { font-size: 11px; opacity: 0.9; }
+</style>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1">
+      <div class="hero-tag">Planificare Temporală</div>
+      <div class="section-title">Calendar Academic</div>
+      <div class="section-sub">Sincronizarea activităților: cursuri, seminare, examene și termene limită.</div>
+    </div>
+    <div id="calendar" class="fade2"></div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+<script>
+initPage({ title: 'Calendar', sub: 'Evenimente și Termene', active: 'calendar.html' });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const START_DATE = new Date('2026-02-23T00:00:00');
+  const END_DATE = new Date('2026-06-07T23:59:59');
+  const VACATION_START = new Date('2026-04-13T00:00:00');
+  const VACATION_END = new Date('2026-04-19T23:59:59');
+
+  const profesori = {
+    "curs": "Lect. Dr. Alexandru Mihail",
+    "161": "Lect. Dr. Alexandru Mihail",
+    "162": "Asist. Dr. Liliana Mitre",
+    "163": "Asist. Dr. Liliana Mitre",
+    "164": "Asist. Dr. Liliana Mitre",
+    "tutoriat": "Tutore Neacșu Andrei Ștefan & Tutore Nițuică Andrei Sebastian",
+    "examen": "Toată echipa academică"
+  };
+
+  function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  const generatedEvents = [];
+
+  let currentMonday = new Date(START_DATE);
+  let weekNum = 1;
+  while (currentMonday <= END_DATE) {
+    const isVacation = currentMonday >= VACATION_START && currentMonday <= VACATION_END;
+    const isOdd = weekNum % 2 !== 0;
+
+    if (!isVacation) {
+      const monday = currentMonday;
+      const tuesday = addDays(monday, 1);
+      const friday = addDays(monday, 4);
+
+      const addEvent = (title, date, startTime, endTime, props) => {
+        // Skip May 1 and June 1
+        if (date.getMonth() === 4 && date.getDate() === 1) return;
+        if (date.getMonth() === 5 && date.getDate() === 1) return;
+        
+        const start = `${formatLocalDate(date)}T${startTime}`;
+        const end = `${formatLocalDate(date)}T${endTime}`;
+        generatedEvents.push({ title, start, end, extendedProps: props });
+      };
+
+      // Friday course
+      addEvent('Curs MS', friday, '12:00:00', '14:00:00', { type: 'curs', sala: '501' });
+
+      // Monday course (odd weeks)
+      if (isOdd) {
+        addEvent('Curs MS', monday, '12:00:00', '14:00:00', { type: 'curs', sala: '503' });
+      }
+
+      // Seminar 161
+      if (isOdd) {
+        addEvent('Seminar 161', monday, '14:00:00', '16:00:00', { type: 'seminar', sala: '209', grupa: '161' });
+      } else {
+        addEvent('Seminar 161', monday, '12:00:00', '14:00:00', { type: 'seminar', sala: '107', grupa: '161' });
+      }
+
+      // Seminar 162 (Monday 14-16)
+      addEvent('Seminar 162', monday, '14:00:00', '16:00:00', { type: 'seminar', sala: '301', grupa: '162' });
+
+      // Tuesday seminars
+      addEvent('Seminar 163', tuesday, '10:00:00', '12:00:00', { type: 'seminar', sala: '209', grupa: '163' });
+      addEvent('Seminar 164', tuesday, '12:00:00', '14:00:00', { type: 'seminar', sala: '209', grupa: '164' });
+
+      // Tutoriat
+      if (weekNum >= 4) {
+        addEvent('Tutoriat MS', tuesday, '18:00:00', '20:00:00', { type: 'tutoriat', sala: '107', grupa: 'tutoriat' });
+      }
+      
+      weekNum++; // Only increment academic week number during non-vacation weeks
+    }
+
+    currentMonday = addDays(currentMonday, 7);
+  }
+  
+  // Add Exams
+  generatedEvents.push({
+    title: 'Examen MS (Scris)',
+    start: '2026-06-16T10:00:00',
+    end: '2026-06-16T12:00:00',
+    extendedProps: { type: 'examen', sala: '501', grupa: 'examen' } // Grupele 161, 162
+  });
+  generatedEvents.push({
+    title: 'Examen MS (Scris)',
+    start: '2026-06-17T10:00:00',
+    end: '2026-06-17T12:00:00',
+    extendedProps: { type: 'examen', sala: '512', grupa: 'examen' } // Grupele 163, 164
+  });
+
+  const calendarEl = document.getElementById('calendar');
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    locale: 'ro',
+    firstDay: 1,
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+    events: generatedEvents,
+    
+    eventDidMount: function(info) {
+      const type = info.event.extendedProps.type;
+      if (type === 'seminar') info.el.classList.add('event-seminar');
+      if (type === 'curs') info.el.classList.add('event-curs');
+      if (type === 'tutoriat') info.el.classList.add('event-tutoriat');
+      if (type === 'examen') info.el.classList.add('event-examen');
+      
+      const salaInfo = info.event.extendedProps.sala ? `\nSala: ${info.event.extendedProps.sala}` : '';
+      info.el.title = `${info.event.title}${salaInfo}`;
+    },
+    
+    eventClick: function(info) {
+      const p = info.event.extendedProps;
+      const hours = info.event.start ? 
+        info.event.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + ' - ' + 
+        info.event.end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Toată ziua';
+      const type = (p.type || 'general').toUpperCase();
+      const prof = profesori[p.grupa || p.type] || "Nedefinit";
+      const sala = p.sala || "N/A";
+      
+      alert(`=== STRUCTURA ACADEMICĂ ===\nTip: ${type}\nMaterie: ${info.event.title}\nProfesori: ${prof}\nSala: ${sala}\nOrar: ${hours}`);
+    }
+  });
+  calendar.render();
+});
+</script>
+</body>
+</html>

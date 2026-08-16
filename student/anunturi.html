@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+
+  <title>Anunțuri | Matematici Speciale</title>
+  <meta name="description" content="Cele mai recente anunțuri academice și actualizări pentru Matematici Speciale." />
+  <link rel="canonical" href="https://matematicispeciale.site/anunturi.html" />
+  <meta property="og:title" content="Anunțuri | Matematici Speciale" />
+  <meta property="og:description" content="Cele mai recente anunțuri academice și actualizări pentru Matematici Speciale." />
+  <meta property="og:url" content="https://matematicispeciale.site/anunturi.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Anunțuri | Matematici Speciale" />
+  <meta name="twitter:description" content="Cele mai recente anunțuri academice și actualizări pentru Matematici Speciale." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div>
+        <div class="hero-tag">Comunicări Seria 16</div>
+        <div class="section-title">Anunțuri și Noutăți</div>
+        <div class="section-sub">Cele mai recente informații despre curs, seminar și examinare.</div>
+      </div>
+      <div id="admin-btn"></div>
+    </div>
+    
+    <div id="ann-list" class="fade2" style="display:flex;flex-direction:column;gap:16px"></div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-title">Publică Anunț</span><button class="modal-close" onclick="closeModal('add-modal')">✕</button></div>
+    <div class="form-group"><label class="form-label">Titlu</label><input id="ann-t" class="form-input" type="text" placeholder="ex. Modificare sală seminar" /></div>
+    <div class="form-group"><label class="form-label">Conținut</label><textarea id="ann-b" class="form-textarea" placeholder="Scrie detaliile aici..."></textarea></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:20px 0">
+      <input type="checkbox" id="ann-pin" style="accent-color:var(--gold);width:16px;height:16px">
+      <label for="ann-pin" class="form-label" style="margin:0">Fixează acest anunț în top</label>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="addAnn()">Publică Noutate</button>
+  </div>
+</div>
+
+<script>
+initPage({ title: 'Anunțuri', sub: 'Hub de Noutăți', active: 'anunturi.html' });
+
+async function load() {
+  const el = document.getElementById('ann-list');
+  try {
+    const data = await API.getAnnouncements();
+    if (!data.length) { el.innerHTML = '<div class="card fade1" style="text-align:center;padding:100px 20px"><div style="font-size:40px;margin-bottom:20px;opacity:0.2">📢</div><p style="color:var(--text-mute)">Nu a fost publicat niciun anunț până acum.</p></div>'; return; }
+    el.innerHTML = data.map(a => `
+      <div class="card" style="${a.pinned ? 'border-color:var(--gold-glow);background:rgba(234,179,8,0.02)' : ''}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="user-avatar" style="width:24px;height:24px;font-size:10px">${(a.author||'A').charAt(0)}</div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-mute);text-transform:uppercase">${new Date(a.created_at).toLocaleDateString('ro-RO')} · ${a.author||'Administrator'}</div>
+          </div>
+          ${a.pinned ? '<span class="tag tag-gold">Importanță Ridicată</span>' : ''}
+        </div>
+        <div style="font-size:18px;font-weight:800;font-family:var(--font-hd);margin-bottom:10px;color:var(--text-main)">${a.title}</div>
+        <div style="font-size:14.5px;color:var(--text-dim);line-height:1.8;white-space:pre-wrap">${a.body}</div>
+        ${API.isAdmin() ? `<div style="display:flex;gap:8px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+          <button class="btn btn-secondary btn-sm" onclick="pin(${a.id},${!a.pinned})">${a.pinned?'Dezmărcare':'Marchează ca Important'}</button>
+          <button class="btn btn-danger btn-sm" onclick="del(${a.id})">Șterge</button>
+        </div>` : ''}
+      </div>`).join('');
+  } catch(e) { el.innerHTML = `<p style="color:var(--rose)">${e.message}</p>`; }
+}
+
+async function addAnn() {
+  try {
+    const btn = event.target;
+    btn.disabled = true;
+    await API.addAnnouncement({ title: document.getElementById('ann-t').value, body: document.getElementById('ann-b').value, pinned: document.getElementById('ann-pin').checked });
+    closeModal('add-modal'); toast('Anunț publicat cu succes.','ok'); load();
+  } catch(e) { toast(e.message,'err'); } finally { event.target.disabled = false; }
+}
+async function del(id) { if(!confirm('Dorești să ștergi acest anunț?')) return; try { await API.deleteAnnouncement(id); toast('Anunț eliminat.','ok'); load(); } catch(e){toast(e.message,'err');} }
+async function pin(id, v) { try { await API.patchAnnouncement(id, {pinned:v}); load(); } catch(e){toast(e.message,'err');} }
+
+if (API.isAdmin()) document.getElementById('admin-btn').innerHTML = `<button class="btn btn-primary btn-sm" onclick="openModal('add-modal')">+ Adaugă Anunț</button>`;
+load();
+</script>
+</body></html>

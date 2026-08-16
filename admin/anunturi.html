@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anunțuri Admin – Matematici Speciale</title>
+  <link rel="stylesheet" href="./css/style.css" />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body class="admin-mode">
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/admin-ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1" style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div class="hero-tag">Consolă Comunicări</div>
+        <div class="section-title">Gestiune Anunțuri</div>
+        <div class="section-sub">Publică noutăți și avertismente pentru studenții Seria 16.</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('add-modal')">+ Anunț Nou</button>
+    </div>
+    
+    <div id="ann-list" class="fade2" style="display:flex;flex-direction:column;gap:16px"></div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-title">Publică Anunț</span><button class="modal-close" onclick="closeModal('add-modal')">✕</button></div>
+    <div class="form-group"><label class="form-label">Titlu</label><input id="a-t" class="form-input" type="text" placeholder="ex. Anunț Sesiune" /></div>
+    <div class="form-group"><label class="form-label">Conținut (Markdown/Plain)</label><textarea id="a-b" class="form-textarea" style="height:140px" placeholder="Scrie mesajul aici..."></textarea></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <input type="checkbox" id="a-p" style="accent-color:var(--gold);width:16px;height:16px">
+      <label for="a-p" class="form-label" style="margin:0">Marchează ca Important (Pinned)</label>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="add()">Publică Imediat</button>
+  </div>
+</div>
+
+<script>
+initPage('Gestiune Anunțuri', 'anunturi.html');
+
+async function load() {
+  const el = document.getElementById('ann-list');
+  try {
+    const data = await API.getAnnouncements();
+    if (!data.length) { el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-mute)">Niciun anunț în bază.</div>'; return; }
+    el.innerHTML = data.map(a => `
+      <div class="card" style="${a.pinned ? 'border-color:var(--gold-glow); background:rgba(234,179,8,0.02)' : ''}">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-mute);text-transform:uppercase">${new Date(a.created_at).toLocaleString('ro-RO')} · ${a.author||'Admin'} ${a.pinned?' · <span style="color:var(--gold)">IMPORTANT</span>':''}</div>
+          <button class="btn btn-danger btn-sm" style="padding:6px 10px" onclick="del(${a.id})">Șterge</button>
+        </div>
+        <div style="font-weight:800;font-family:var(--font-hd);font-size:18px;margin-bottom:10px;color:var(--text-main)">${a.title}</div>
+        <div style="font-size:13.5px;color:var(--text-dim);line-height:1.7;white-space:pre-wrap">${a.body}</div>
+      </div>`).join('');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+async function add() {
+  try {
+    await API.addAnnouncement({ title:document.getElementById('a-t').value, body:document.getElementById('a-b').value, pinned:document.getElementById('a-p').checked });
+    closeModal('add-modal'); toast('Anunț publicat.','ok'); load();
+  } catch(e) { toast(e.message,'err'); }
+}
+async function del(id) { if(!confirm('Ștergi definitiv anunțul?')) return; try { await API.deleteAnnouncement(id); toast('Anunț șters.','ok'); load(); } catch(e){toast(e.message,'err');} }
+
+load();
+</script>
+</body></html>

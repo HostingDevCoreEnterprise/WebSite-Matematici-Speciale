@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <title>Evaluare și Notare | Matematici Speciale</title>
+  <meta name="description" content="Criterii de evaluare, punctaje și metode de examinare pentru Matematici Speciale." />
+  <link rel="canonical" href="https://matematicispeciale.site/evaluare.html" />
+  <meta property="og:title" content="Evaluare și Notare | Matematici Speciale" />
+  <meta property="og:description" content="Criterii de evaluare, punctaje și metode de examinare pentru Matematici Speciale." />
+  <meta property="og:url" content="https://matematicispeciale.site/evaluare.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Evaluare și Notare | Matematici Speciale" />
+  <meta name="twitter:description" content="Criterii de evaluare, punctaje și metode de examinare pentru Matematici Speciale." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1">
+      <div class="hero-tag">Standarde de Performanță</div>
+      <div class="section-title">Structura Evaluării</div>
+      <div class="section-sub">Defalcarea punctajului și criteriile de promovare pentru Semestrul 2.</div>
+    </div>
+    
+    <div class="g2 fade2" style="margin-bottom:32px; gap:24px">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:24px">Distribuția Punctajului</div>
+        <div style="max-width:280px; margin: 0 auto"><canvas id="evalChart"></canvas></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:18px">
+        <div class="card-title">Componente Detaliate</div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:600">Exerciții Examen</span>
+            <span style="color:var(--accent);font-weight:800">50 pct</span>
+          </div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:50%;background:var(--accent)"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:600">Teorie Examen</span>
+            <span style="color:var(--teal);font-weight:800">30 pct</span>
+          </div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:30%;background:var(--teal)"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:600">Seminar / Activitate</span>
+            <span style="color:var(--gold);font-weight:800">20 pct</span>
+          </div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:20%;background:var(--gold)"></div></div>
+        </div>
+        <div style="margin-top:10px;padding:14px;border-radius:12px;background:var(--bg-glass-lt);font-size:12px;color:var(--text-dim)">
+          <span style="color:var(--text-main);font-weight:700">Notă:</span> Punctajul din oficiu este de 10 puncte (inclus implicit). Total 110 puncte posibile.
+        </div>
+      </div>
+    </div>
+
+    <div class="card fade3">
+      <div class="card-title" style="margin-bottom:20px">Scara de Notare</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px">
+        <div style="padding:16px;border-radius:14px;background:var(--bg-glass-lt);text-align:center;border:1px solid var(--border)">
+          <div style="font-size:24px;font-weight:900;font-family:var(--font-hd);color:var(--accent)">10</div>
+          <div style="font-size:11px;color:var(--text-mute);margin-top:4px">95 – 110 pct</div>
+        </div>
+        <div style="padding:16px;border-radius:14px;background:var(--bg-glass-lt);text-align:center;border:1px solid var(--border)">
+          <div style="font-size:24px;font-weight:900;font-family:var(--font-hd);color:var(--text-main)">9</div>
+          <div style="font-size:11px;color:var(--text-mute);margin-top:4px">85 – 94 pct</div>
+        </div>
+        <div style="padding:16px;border-radius:14px;background:var(--bg-glass-lt);text-align:center;border:1px solid var(--border)">
+          <div style="font-size:24px;font-weight:900;font-family:var(--font-hd);color:var(--text-main)">8</div>
+          <div style="font-size:11px;color:var(--text-mute);margin-top:4px">75 – 84 pct</div>
+        </div>
+        <div style="padding:16px;border-radius:14px;background:var(--bg-glass-lt);text-align:center;border:1px solid var(--border)">
+          <div style="font-size:24px;font-weight:900;font-family:var(--font-hd);color:var(--text-main)">7</div>
+          <div style="font-size:11px;color:var(--text-mute);margin-top:4px">65 – 74 pct</div>
+        </div>
+        <div style="padding:16px;border-radius:14px;background:var(--bg-glass-lt);text-align:center;border:1px solid var(--border)">
+          <div style="font-size:24px;font-weight:900;font-family:var(--font-hd);color:var(--text-main)">6</div>
+          <div style="font-size:11px;color:var(--text-mute);margin-top:4px">55 – 64 pct</div>
+        </div>
+        <div style="padding:16px;border-radius:14px;background:var(--bg-glass-lt);text-align:center;border:1px solid var(--accent-glow)">
+          <div style="font-size:24px;font-weight:900;font-family:var(--font-hd);color:var(--rose)">5</div>
+          <div style="font-size:11px;color:var(--text-mute);margin-top:4px">50 – 54 pct</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+<script>
+initPage({ title: 'Evaluare', sub: 'Criterii de Notare', active: 'evaluare.html' });
+
+const ctx = document.getElementById('evalChart').getContext('2d');
+new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Exerciții', 'Teorie', 'Seminar', 'Oficiu'],
+    datasets: [{
+      data: [50, 30, 20, 10],
+      backgroundColor: ['#6366f1', '#14b8a6', '#eab308', 'rgba(255,255,255,0.1)'],
+      borderWidth: 0, hoverOffset: 15
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    cutout: '75%',
+    responsive: true
+  }
+});
+</script>
+</body></html>

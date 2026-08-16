@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /conturi.html
+
+Sitemap: https://matematicispeciale.site/sitemap.xml

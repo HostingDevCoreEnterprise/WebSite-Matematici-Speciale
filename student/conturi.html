@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+
+  <title>Conturi și Autentificare | Matematici Speciale</title>
+  <meta name="description" content="Accesează-ți contul de student pentru a vizualiza resurse restricționate." />
+  <link rel="canonical" href="https://matematicispeciale.site/conturi.html" />
+  <meta property="og:title" content="Conturi și Autentificare | Matematici Speciale" />
+  <meta property="og:description" content="Accesează-ți contul de student pentru a vizualiza resurse restricționate." />
+  <meta property="og:url" content="https://matematicispeciale.site/conturi.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Conturi și Autentificare | Matematici Speciale" />
+  <meta name="twitter:description" content="Accesează-ți contul de student pentru a vizualiza resurse restricționate." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    
+    <div id="auth-wall" style="display:none">
+      <div class="auth-wall fade1">
+        <div class="auth-wall-icon">👤</div>
+        <div class="auth-wall-title">Profil Privat</div>
+        <div class="auth-wall-sub">Trebuie să fii autentificat pentru a vedea detaliile contului tău academic.</div>
+        <button class="btn btn-primary btn-lg" onclick="openModal('auth-modal')">Conectează-te acum</button>
+      </div>
+    </div>
+
+    <div id="profile-content" style="display:none">
+      <div class="section-hd fade1">
+        <div class="hero-tag">Dashboard Personal</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end">
+          <div><div class="section-title">Salut, <span id="u-name-hd" style="color:var(--accent)">Utilizator</span>!</div><div class="section-sub">Monitorizarea parcursului tău în Semestrul 2.</div></div>
+          <div id="tries-badge" class="tag tag-indigo" style="padding:10px 20px; font-size:14px">3 Încercări Mock-Exam</div>
+        </div>
+      </div>
+
+      <div class="g3 fade2" style="margin-bottom:32px">
+        <div class="card stat-card" style="border-left:4px solid var(--accent)">
+          <div id="u-tries" class="stat-val">0</div>
+          <div class="stat-lbl">Încercări Mock Rămase</div>
+        </div>
+        <div class="card stat-card" style="border-left:4px solid var(--teal)">
+          <div id="u-sims" class="stat-val">0</div>
+          <div class="stat-lbl">Simulări Completate</div>
+        </div>
+        <div class="card stat-card" style="border-left:4px solid var(--rose)">
+          <div id="u-grade-avg" class="stat-val">—</div>
+          <div class="stat-lbl">Media Notelor Mock</div>
+        </div>
+      </div>
+
+      <div class="section-hd fade3"><div class="card-title">Rezultate Simulări Mock-Exam</div></div>
+      <div class="tbl-wrap fade3">
+        <table>
+          <thead><tr><th>Dată</th><th>Teorie</th><th>Exercițiu</th><th>Status</th><th>Notă</th><th>Acțiuni</th></tr></thead>
+          <tbody id="results-list"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+
+<script>
+initPage({ title: 'Contul meu', sub: 'Profil Academic', active: 'conturi.html' });
+
+async function load() {
+  if (!API.isLoggedIn()) { document.getElementById('auth-wall').style.display='block'; return; }
+  document.getElementById('profile-content').style.display='block';
+  
+  try {
+    const user = await API.me();
+    document.getElementById('u-name-hd').textContent = user.name;
+    document.getElementById('u-tries').textContent = user.tries;
+    document.getElementById('tries-badge').textContent = `${user.tries} Încercări Mock-Exam`;
+    
+    const results = await API.myResults();
+    const list = document.getElementById('results-list');
+    document.getElementById('u-sims').textContent = results.length;
+    
+    if (!results.length) {
+      list.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-mute)">Încă nu ai susținut nicio simulare.</td></tr>';
+      return;
+    }
+    
+    list.innerHTML = results.map(r => `
+      <tr>
+        <td style="font-weight:600">${new Date(r.created_at).toLocaleDateString()}</td>
+        <td><div style="font-size:12px;color:var(--text-dim);max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.theory_title || 'N/A'}</div></td>
+        <td><div style="font-size:12px;color:var(--text-dim);max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.exercise_title || 'N/A'}</div></td>
+        <td><span class="tag ${r.admin_grade !== null ? 'tag-green' : 'tag-gold'}">${r.admin_grade !== null ? 'Corectat' : 'În curs...'}</span></td>
+        <td style="font-weight:900;font-size:16px;color:var(--accent)">${r.admin_grade ?? '—'}</td>
+        <td><a href="${r.upload_url}" target="_blank" class="btn btn-secondary btn-sm">Lucrare ↗</a></td>
+      </tr>`).join('');
+      
+    const graded = results.filter(r => r.admin_grade !== null);
+    if (graded.length) {
+      const avg = graded.reduce((acc, r) => acc + parseFloat(r.admin_grade), 0) / graded.length;
+      document.getElementById('u-grade-avg').textContent = avg.toFixed(1);
+    }
+  } catch(e) { toast(e.message,'err'); }
+}
+load();
+</script>
+</body></html>

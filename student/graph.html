@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://www.desmos.com/api/v1.6/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
+  <title>Graficul Materiei | Matematici Speciale</title>
+  <meta name="description" content="Reprezentarea grafică a conceptelor studiate la Matematici Speciale." />
+  <link rel="canonical" href="https://matematicispeciale.site/graph.html" />
+  <meta property="og:title" content="Graficul Materiei | Matematici Speciale" />
+  <meta property="og:description" content="Reprezentarea grafică a conceptelor studiate la Matematici Speciale." />
+  <meta property="og:url" content="https://matematicispeciale.site/graph.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Graficul Materiei | Matematici Speciale" />
+  <meta name="twitter:description" content="Reprezentarea grafică a conceptelor studiate la Matematici Speciale." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<style>
+  #calculator {
+    width: 100%;
+    height: 560px;
+    border-radius: var(--r-xl);
+    border: 1px solid var(--border-lt);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    background: #fff;
+  }
+  .fn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .fn-btn {
+    padding: 10px 14px;
+    background: var(--bg-glass-lt);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-hd);
+    text-align: left;
+    transition: var(--tr);
+  }
+  .fn-btn:hover {
+    background: rgba(99,102,241,0.12);
+    border-color: var(--accent);
+    color: var(--text-main);
+    transform: translateY(-1px);
+  }
+</style>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1">
+      <div class="hero-tag">Laborator Virtual</div>
+      <div class="section-title">Calculator de Grafice</div>
+      <div class="section-sub">Vizualizare interactivă a funcțiilor matematice cu motorul Desmos.</div>
+    </div>
+
+    <!-- Quick functions -->
+    <div class="card fade2" style="margin-bottom:24px">
+      <div class="card-title" style="margin-bottom:16px">Funcții Predefinite</div>
+      <div class="fn-grid">
+        <button class="fn-btn" onclick="draw('y=3')">f(x) = 3 (constantă)</button>
+        <button class="fn-btn" onclick="draw('y=x')">f(x) = x (identitate)</button>
+        <button class="fn-btn" onclick="draw('y=2x+1')">f(x) = 2x + 1</button>
+        <button class="fn-btn" onclick="draw('y=x^2')">f(x) = x²</button>
+        <button class="fn-btn" onclick="draw('y=x^3')">f(x) = x³</button>
+        <button class="fn-btn" onclick="draw('y=2^x')">f(x) = 2ˣ</button>
+        <button class="fn-btn" onclick="draw('y=\\log(x)')">f(x) = log(x)</button>
+        <button class="fn-btn" onclick="draw('y=\\sqrt{x}')">f(x) = √x</button>
+        <button class="fn-btn" onclick="draw('y=\\abs(x)')">f(x) = |x|</button>
+        <button class="fn-btn" onclick="draw('y=\\sin(x)')">f(x) = sin(x)</button>
+        <button class="fn-btn" onclick="draw('y=\\cos(x)')">f(x) = cos(x)</button>
+        <button class="fn-btn" onclick="draw('y=\\tan(x)')">f(x) = tan(x)</button>
+      </div>
+      <div style="display:flex;gap:10px">
+        <input id="custom-fn" type="text" class="form-input" placeholder="Introdu funcție proprie, ex: y=x^2-4" />
+        <button class="btn btn-primary" onclick="drawCustom()">Grafic</button>
+        <button class="btn btn-secondary" onclick="clearGraph()">Șterge</button>
+      </div>
+      <div class="form-hint" style="margin-top:8px">Sintaxă: <code>^</code> pentru putere, <code>\sin(x)</code>, <code>\sqrt{x}</code>, <code>\log(x)</code></div>
+    </div>
+
+    <!-- Desmos Calculator -->
+    <div id="calculator" class="fade3"></div>
+
+  </div>
+  <footer id="footer"></footer>
+</div>
+<script>
+initPage({ title: 'Grafice', sub: 'Calculator Interactiv', active: 'graph.html' });
+
+var elt = document.getElementById('calculator');
+var calculator = Desmos.GraphingCalculator(elt, {
+  keypad: false,
+  expressionsCollapsed: true
+});
+
+// Start with a default function
+draw('y=x^2');
+
+function draw(expr) {
+  calculator.setExpression({ id: 'graph', latex: expr });
+}
+
+function drawCustom() {
+  const val = document.getElementById('custom-fn').value.trim();
+  if (!val) { toast('Introdu o expresie.', 'err'); return; }
+  draw(val);
+  toast('Grafic generat!', 'ok');
+}
+
+function clearGraph() {
+  calculator.setExpression({ id: 'graph', latex: '' });
+  document.getElementById('custom-fn').value = '';
+}
+
+document.getElementById('custom-fn').addEventListener('keydown', e => {
+  if (e.key === 'Enter') drawCustom();
+});
+</script>
+</body></html>

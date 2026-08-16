@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subiecte Mock Admin – Matematici Speciale</title>
+  <link rel="stylesheet" href="./css/style.css" />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body class="admin-mode">
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/admin-ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1" style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div class="hero-tag">Baza de Date Subiecte</div>
+        <div class="section-title">Itemi Mock-Exam</div>
+        <div class="section-sub">Gestionează pool-ul de întrebări pentru simulările studenților.</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('add-modal')">+ Subiect Nou</button>
+    </div>
+    
+    <div class="g2 fade2" style="gap:24px; align-items:start">
+      <div class="card">
+        <div class="card-header"><div class="card-title" style="color:var(--accent)">I. Teorie (30p)</div></div>
+        <div id="theory-list" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title" style="color:var(--gold)">II. Exerciții (50p)</div></div>
+        <div id="ex-list" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+    </div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-title">Subiect Nou</span><button class="modal-close" onclick="closeModal('add-modal')">✕</button></div>
+    <div class="form-group"><label class="form-label">Titlu Subiect / Temă</label><input id="s-t" class="form-input" type="text" placeholder="ex. Teorema lui Cauchy" /></div>
+    <div class="form-group"><label class="form-label">Link Subiect (PDF/GDoc opțional)</label><input id="s-l" class="form-input" type="url" placeholder="https://..." /></div>
+    <div class="form-group"><label class="form-label">Categorie Punctaj</label>
+      <select id="s-tp" class="form-select"><option value="theory">Teorie (30p)</option><option value="exercise">Exercițiu (50p)</option></select>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="add()">Adaugă în Bază</button>
+  </div>
+</div>
+
+<script>
+initPage('Subiecte Mock', 'subiecte.html');
+
+async function load() {
+  const tEl = document.getElementById('theory-list');
+  const eEl = document.getElementById('ex-list');
+  try {
+    const theories = await API.getTheorySubjects();
+    const exs = await API.getExSubjects();
+    
+    const fmt = s => `
+      <div class="mat-item card" style="padding:14px; border-color:var(--border)">
+        <div class="mat-info">
+          <div class="mat-title" style="font-size:13.5px;font-weight:700">${s.title}</div>
+          <div class="mat-meta">${s.link!=='#'?'Are Fișier Sursă':'Fără fișier'}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" style="padding:6px 8px" onclick="del('${s.type}', ${s.id})">×</button>
+      </div>`;
+
+    tEl.innerHTML = theories.map(s => fmt({...s, type:'theory'})).join('') || '<p style="color:var(--text-mute)">Niciun subiect teoretic.</p>';
+    eEl.innerHTML = exs.map(s => fmt({...s, type:'exercise'})).join('') || '<p style="color:var(--text-mute)">Niciun exercițiu disponibil.</p>';
+  } catch(e) { toast(e.message,'err'); }
+}
+
+async function add() {
+  try {
+    const tp = document.getElementById('s-tp').value;
+    await API.addSubject(tp, { title:document.getElementById('s-t').value, link:document.getElementById('s-l').value || '#' });
+    closeModal('add-modal'); toast('Subiect salvat.','ok'); load();
+  } catch(e) { toast(e.message,'err'); }
+}
+async function del(tp, id) {
+  if(!confirm('Ștergi subiectul?')) return;
+  try { await API.delSubject(tp, id); toast('Șters.','ok'); load(); } catch(e){toast(e.message,'err');}
+}
+
+load();
+</script>
+</body></html>

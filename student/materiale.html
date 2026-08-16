@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+
+  <title>Materiale și Cursuri | Matematici Speciale</title>
+  <meta name="description" content="Descarcă și consultă materialele de curs, seminarele și resursele adiționale." />
+  <link rel="canonical" href="https://matematicispeciale.site/materiale.html" />
+  <meta property="og:title" content="Materiale și Cursuri | Matematici Speciale" />
+  <meta property="og:description" content="Descarcă și consultă materialele de curs, seminarele și resursele adiționale." />
+  <meta property="og:url" content="https://matematicispeciale.site/materiale.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Materiale și Cursuri | Matematici Speciale" />
+  <meta name="twitter:description" content="Descarcă și consultă materialele de curs, seminarele și resursele adiționale." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    
+    <div id="auth-wall-wrap" style="display:none">
+      <div class="auth-wall fade1">
+        <div class="auth-wall-icon">🛡️</div>
+        <div class="auth-wall-title">Acces Protejat</div>
+        <div class="auth-wall-sub">Accesul la materialele de curs, seminar și tutoriat este permis exclusiv studenților autentificați.</div>
+        <button class="btn btn-primary btn-lg" onclick="openModal('auth-modal')">Autentifică-te pentru Acces</button>
+      </div>
+    </div>
+
+    <div id="mat-content" style="display:none">
+      <div class="section-hd fade1" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px">
+        <div>
+          <div class="hero-tag">Bibliotecă Resurse</div>
+          <div class="section-title">Materiale Educaționale</div>
+          <div class="section-sub">Resurse complete pentru parcurgerea disciplinei.</div>
+        </div>
+        <div id="admin-btn"></div>
+      </div>
+      
+      <div class="tabs fade2" id="mat-tabs">
+        <button class="tab on" data-tabgroup="mat" data-tab="curs" onclick="loadCat('curs')">Resurse Curs</button>
+        <button class="tab" data-tabgroup="mat" data-tab="seminar" onclick="loadCat('seminar')">Resurse Seminar</button>
+        <button class="tab" data-tabgroup="mat" data-tab="tutoriat" onclick="loadCat('tutoriat')">Resurse Tutoriat</button>
+      </div>
+      
+      <div id="mat-list" class="fade3" style="display:grid;grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap:16px"></div>
+    </div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+
+<div class="modal-bg" id="add-mat-modal">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-title">Adaugă Resursă</span><button class="modal-close" onclick="closeModal('add-mat-modal')">✕</button></div>
+    <div class="form-group"><label class="form-label">Titlu Material</label><input id="m-title" class="form-input" type="text" placeholder="ex. Curs 5 – Integrale Triple" /></div>
+    <div class="form-group"><label class="form-label">Link Document (Cloud)</label><input id="m-link" class="form-input" type="url" placeholder="https://drive.google.com/..." /></div>
+    <div class="g2" style="gap:16px">
+      <div class="form-group"><label class="form-label">Categorie</label>
+        <select id="m-cat" class="form-select"><option value="curs">Curs</option><option value="seminar">Seminar</option><option value="tutoriat">Tutoriat</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Tip Fișier</label>
+        <select id="m-type" class="form-select"><option value="PDF">PDF Catalog</option><option value="Video">Lecție Video</option><option value="Link">Referință Externă</option></select>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="addMat()">Încarcă Resursă</button>
+  </div>
+</div>
+
+<script>
+initPage({ title: 'Materiale', sub: 'Hub Educațional', active: 'materiale.html' });
+const TYPE_ICON = { PDF: '📄', Video: '🎬', Link: '🔗', Drive: '📁' };
+
+async function initApp() {
+  if (!API.isLoggedIn()) {
+    document.getElementById('auth-wall-wrap').style.display = 'block';
+    return;
+  }
+  const user = await API.me().catch(() => null);
+  if (!user || !user.is_approved) {
+    document.getElementById('auth-wall-wrap').style.display = 'block';
+    document.querySelector('.auth-wall-sub').textContent = 'Contul tău necesită aprobare din partea administratorului pentru a accesa materialele.';
+    const btn = document.querySelector('.auth-wall button');
+    btn.textContent = 'Verifică Status';
+    btn.onclick = () => window.location.reload();
+    return;
+  }
+  document.getElementById('mat-content').style.display = 'block';
+  if (API.isAdmin()) document.getElementById('admin-btn').innerHTML = `<button class="btn btn-primary btn-sm" onclick="openModal('add-mat-modal')">+ Adaugă Material</button>`;
+  loadCat('curs');
+}
+initApp();
+
+async function loadCat(cat) {
+  document.querySelectorAll('[data-tabgroup="mat"]').forEach(b => b.classList.toggle('on', b.dataset.tab === cat));
+  const el = document.getElementById('mat-list');
+  el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-mute)">Sincronizare cu serverul...</div>';
+  try {
+    const data = await API.getMaterials(cat);
+    if (!data.length) { el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:100px 20px;opacity:0.3"><div style="font-size:40px;margin-bottom:20px">📂</div><p>Niciun material disponibil în această secțiune.</p></div>'; return; }
+    el.innerHTML = data.map(m => `
+      <div class="card mat-item" style="padding:20px;display:flex;gap:18px;align-items:center">
+        <div class="mat-icon" style="width:50px;height:50px;font-size:24px;border-radius:12px;background:var(--bg-glass-lt);border:1px solid var(--border)">${TYPE_ICON[m.type]||'📄'}</div>
+        <div style="flex:1">
+          <div class="mat-title" style="font-size:15px;font-weight:700;font-family:var(--font-hd)">${m.title}</div>
+          <div class="mat-meta" style="font-size:11px;color:var(--text-mute);margin-top:4px;text-transform:uppercase;letter-spacing:0.05em">${m.type} · ${new Date(m.created_at).toLocaleDateString()}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="${m.link}" target="_blank" class="btn btn-secondary btn-sm" style="padding:6px 12px">Deschide</a>
+          ${API.isAdmin() ? `<button class="btn btn-danger btn-sm" style="padding:6px 8px" onclick="delMat(${m.id})">×</button>` : ''}
+        </div>
+      </div>`).join('');
+  } catch(e) { el.innerHTML = `<p style="color:var(--rose);grid-column:1/-1">${e.message}</p>`; }
+}
+
+async function addMat() {
+  try {
+    const btn = event.target;
+    btn.disabled = true;
+    const cat = document.getElementById('m-cat').value;
+    await API.addMaterial({ title: document.getElementById('m-title').value, link: document.getElementById('m-link').value, category: cat, type: document.getElementById('m-type').value });
+    closeModal('add-mat-modal'); toast('Material adăugat.','ok'); loadCat(cat);
+  } catch(e) { toast(e.message,'err'); } finally { event.target.disabled = false; }
+}
+async function delMat(id) {
+  if(!confirm('Dorești să elimini acest material?')) return;
+  const cat = document.querySelector('[data-tabgroup="mat"].on')?.dataset.tab || 'curs';
+  try { await API.deleteMaterial(id); toast('Resursă eliminată.','ok'); loadCat(cat); } catch(e){toast(e.message,'err');}
+}
+</script>
+</body></html>

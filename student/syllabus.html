@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+
+  <title>Syllabus | Matematici Speciale</title>
+  <meta name="description" content="Programa analitică completă și structura cursului de Matematici Speciale." />
+  <link rel="canonical" href="https://matematicispeciale.site/syllabus.html" />
+  <meta property="og:title" content="Syllabus | Matematici Speciale" />
+  <meta property="og:description" content="Programa analitică completă și structura cursului de Matematici Speciale." />
+  <meta property="og:url" content="https://matematicispeciale.site/syllabus.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matematici Speciale" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Syllabus | Matematici Speciale" />
+  <meta name="twitter:description" content="Programa analitică completă și structura cursului de Matematici Speciale." />
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<script>window.MS_CONFIG = { apiBase: 'https://api.matematicispeciale.site' };</script>
+<script src="js/api.js"></script><script src="js/ui.js"></script>
+<div class="main">
+  <div id="topbar"></div>
+  <div class="page">
+    <div class="section-hd fade1" style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
+      <div>
+        <div class="hero-tag">Planificare Semestrială</div>
+        <div class="section-title">Programul Academic</div>
+        <div class="section-sub">Conținut analitic structurat pe 14 săptămâni de studiu intens.</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <span class="tag tag-indigo">14 Săptămâni</span>
+        <span class="tag tag-gray">Semestrul 2</span>
+      </div>
+    </div>
+
+    <div id="syllabus-list" class="fade2" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+  <footer id="footer"></footer>
+</div>
+<script>
+initPage({ title: 'Syllabus', sub: 'Programul de studiu', active: 'syllabus.html' });
+
+const WEEKS = [
+  { c:'Integrale Proprii', s:'Aplicații: Integrale Proprii', t:'— (Nu se susține tutoriat)' },
+  { c:'Integrale Improprii', s:'Aplicații: Integrale Improprii', t:'— (Nu se susține tutoriat)' },
+  { c:'Graficele funcțiilor elementare', s:'Exerciții: Trasarea graficelor', t:'— (Nu se susține tutoriat)' },
+  { c:'Integrale Curbilinii', s:'Probleme: Integrale Curbilinii', t:'Recapitulare: Integrale Proprii și Improprii' },
+  { c:'Integrale Duble', s:'Probleme: Integrale Duble', t:'Exerciții: Grafice și Integrale Curbilinii' },
+  { c:'Integrale Triple', s:'Probleme: Integrale Triple', t:'Recapitulare: Integrale Duble' },
+  { c:'Teorema lui Green', s:'Probleme și aplicații: Teorema lui Green', t:'Recapitulare: Integrale Triple' },
+  { c:'Teorema lui Stokes', s:'Aplicații: Teorema lui Stokes', t:'Exerciții: Teorema lui Green' },
+  { c:'Teorema Gauss-Ostrogradski', s:'Aplicații: Teorema Gauss-Ostrogradski', t:'Exerciții: Teorema lui Stokes' },
+  { c:'Integrale pe suprafețe de tip I și II', s:'Probleme: Integrale pe suprafețe', t:'Exerciții: Teorema Gauss-Ostrogradski' },
+  { c:'Analiză Complexă', s:'Exerciții: Analiză Complexă', t:'Recapitulare: Integrale pe suprafețe' },
+  { c:'Ecuații Diferențiale', s:'Ecuații Diferențiale', t:'Exerciții: Analiză Complexă' },
+  { c:'Recapitulare (Partea I)', s:'Subiecte și exerciții de examen', t:'Exerciții: Ecuații Diferențiale' },
+  { c:'Recapitulare (Partea II)', s:'Sesiune pre-examen / Q&A', t:'Simulare Mock-Exam și Recapitulare Finală' },
+];
+
+const DATES = ['23 Feb–01 Mar','02–08 Mar','09–15 Mar','16–22 Mar','23–29 Mar','30 Mar–05 Apr','06–12 Apr','20–26 Apr','27 Apr–03 Mai','04–10 Mai','11–17 Mai','18–24 Mai','25–31 Mai','01–07 Iun'];
+
+const now = new Date();
+const semStart = new Date('2026-02-23T00:00:00');
+const vacStart = new Date('2026-04-13T00:00:00');
+const vacEnd = new Date('2026-04-19T23:59:59');
+
+let activeWeek = 1;
+if (now > semStart) {
+  let ms = now.getTime() - semStart.getTime();
+  if (now > vacEnd) ms -= (7 * 86400000);
+  activeWeek = Math.max(1, Math.min(14, Math.ceil(ms / (7 * 86400000))));
+}
+const currentWeek = activeWeek;
+
+const el = document.getElementById('syllabus-list');
+el.innerHTML = WEEKS.map((w, i) => {
+  const n = i + 1;
+  const isPast = n < currentWeek;
+  const isCurr = n === currentWeek;
+  
+  return `
+  <div class="acc-item card" style="padding:0; overflow:hidden; border-color:${isCurr ? 'var(--accent)' : 'var(--border)'}; box-shadow:${isCurr ? '0 0 30px var(--accent-glow)' : 'none'}">
+    <button class="acc-btn" onclick="toggleAcc(this)" style="padding:24px 28px; background:${isCurr ? 'rgba(99,102,241,0.05)' : 'transparent'}">
+      <div style="display:flex;align-items:center;gap:20px;flex:1">
+        <div class="brand-mark" style="width:38px;height:38px;font-size:14px;background:${isCurr ? 'var(--accent)' : isPast ? 'var(--teal)' : 'var(--bg-glass-lt)'}; box-shadow:none">${n}</div>
+        <div>
+          <div style="font-family:var(--font-hd);font-size:16px;font-weight:700">Săptămâna ${n}</div>
+          <div style="font-size:11px;color:var(--text-mute);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">${DATES[i]} ${isCurr ? '— <span style="color:var(--accent)">Cursul Activ</span>' : ''}</div>
+        </div>
+      </div>
+      <div class="acc-icon" style="transition:0.3s;opacity:0.6;font-size:10px">▼</div>
+    </button>
+    <div class="acc-body ${isCurr ? 'on' : ''}">
+      <div class="acc-inner" style="padding:28px; background:rgba(0,0,0,0.1); border-top: 1px solid var(--border)">
+        <div class="g2" style="gap:24px; grid-template-columns: repeat(3, 1fr) !important">
+          <div>
+            <div style="font-size:10px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Activitate Curs</div>
+            <div style="font-size:14px;line-height:1.7;color:var(--text-main)">${w.c}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Activitate Seminar</div>
+            <div style="font-size:14px;line-height:1.7;color:var(--text-dim)">${w.s}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Activitate Tutoriat</div>
+            <div style="font-size:14px;line-height:1.7;color:var(--text-dim)">${w.t}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}).join('');
+</script>
+</body></html>
