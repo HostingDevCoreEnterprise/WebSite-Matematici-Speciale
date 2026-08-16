@@ -4,7 +4,7 @@ const cors    = require('cors');
 
 const app = express();
 
-const allowedOrigins = ['http://localhost:3000', 'https://matematicispeciale.site', 'https://dashboard.matematicispeciale.site'];
+const allowedOrigins = ['http://localhost:3000', 'https://matematicispeciale.site', 'https://www.matematicispeciale.site', 'https://dashboard.matematicispeciale.site'];
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
