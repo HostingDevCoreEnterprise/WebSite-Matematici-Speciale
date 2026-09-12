@@ -96,12 +96,12 @@ async function load() {
     
     list.innerHTML = results.map(r => `
       <tr>
-        <td style="font-weight:600">${new Date(r.created_at).toLocaleDateString()}</td>
-        <td><div style="font-size:12px;color:var(--text-dim);max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.theory_title || 'N/A'}</div></td>
-        <td><div style="font-size:12px;color:var(--text-dim);max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.exercise_title || 'N/A'}</div></td>
-        <td><span class="tag ${r.admin_grade !== null ? 'tag-green' : 'tag-gold'}">${r.admin_grade !== null ? 'Corectat' : 'În curs...'}</span></td>
-        <td style="font-weight:900;font-size:16px;color:var(--accent)">${r.admin_grade ?? '—'}</td>
-        <td><a href="${r.upload_url}" target="_blank" class="btn btn-secondary btn-sm">Lucrare ↗</a></td>
+        <td data-label="Dată" style="font-weight:600">${new Date(r.created_at).toLocaleDateString()}</td>
+        <td data-label="Teorie"><div style="font-size:12px;color:var(--text-dim);max-width:150px;overflow:hidden;text-overflow:ellipsis;text-align:right">${r.theory_title || 'N/A'}</div></td>
+        <td data-label="Exercițiu"><div style="font-size:12px;color:var(--text-dim);max-width:150px;overflow:hidden;text-overflow:ellipsis;text-align:right">${r.exercise_title || 'N/A'}</div></td>
+        <td data-label="Status"><span class="tag ${r.admin_grade !== null ? 'tag-green' : 'tag-gold'}">${r.admin_grade !== null ? 'Corectat' : 'În curs...'}</span></td>
+        <td data-label="Notă" style="font-weight:900;font-size:16px;color:var(--accent)">${r.admin_grade ?? '—'}</td>
+        <td data-label="Acțiuni"><a href="${r.upload_url}" target="_blank" class="btn btn-secondary btn-sm">Lucrare ↗</a></td>
       </tr>`).join('');
       
     const graded = results.filter(r => r.admin_grade !== null);
