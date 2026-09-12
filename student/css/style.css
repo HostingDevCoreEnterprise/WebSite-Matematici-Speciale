@@ -671,11 +671,11 @@ footer {
   .g2, .g3, .g4 { grid-template-columns: 1fr; }
   footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 20px; }
   
-  table, thead, tbody, th, td, tr { display: block; }
-  thead tr { position: absolute; top: -9999px; left: -9999px; }
-  tr { border-bottom: 1px solid var(--border); }
-  tr:last-child { border-bottom: none; }
-  td {
+  .tbl-wrap table, .tbl-wrap thead, .tbl-wrap tbody, .tbl-wrap th, .tbl-wrap td, .tbl-wrap tr { display: block; }
+  .tbl-wrap thead tr { position: absolute; top: -9999px; left: -9999px; }
+  .tbl-wrap tr { border-bottom: 1px solid var(--border); }
+  .tbl-wrap tr:last-child { border-bottom: none; }
+  .tbl-wrap td {
     border: none;
     border-bottom: 1px solid rgba(255,255,255,0.02);
     position: relative;
@@ -686,7 +686,7 @@ footer {
     align-items: center;
     min-height: 48px;
   }
-  td::before {
+  .tbl-wrap td::before {
     content: attr(data-label);
     position: absolute;
     left: 16px;
@@ -698,10 +698,10 @@ footer {
     text-transform: uppercase;
     white-space: nowrap;
   }
-  td[colspan="6"] {
+  .tbl-wrap td[colspan="6"] {
     padding: 30px 16px;
     text-align: center;
     display: block;
   }
-  td[colspan="6"]::before { content: none; }
+  .tbl-wrap td[colspan="6"]::before { content: none; }
 }
